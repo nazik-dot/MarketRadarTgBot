@@ -17,10 +17,12 @@ The bot lets you search market prices, view asset data, and manage your personal
 
 ## 📄 Requirements
 
+## 📄 Requirements
+
 > - ⚙️ Python 3.11+
 > - 📊 Alpha Vantage API key
 > - 🤖 Telegram Bot token
-
+> - ⚡ Aiogram 3.x
 ---
 
 ## 🚀 How to install
