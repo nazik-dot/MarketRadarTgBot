@@ -5,6 +5,17 @@ main_keyboard = ReplyKeyboardMarkup(
         [KeyboardButton(text="💸 Find cryptocurrency")],
         [KeyboardButton(text="📃 Find stock")],
         [KeyboardButton(text="💎 Find precious metal")],
-        [KeyboardButton(text="🪙 See all my added assets")]
-    ], resize_keyboard=True
+        [KeyboardButton(text="🪙 More options")]
+    ],
+    resize_keyboard=True
+)
+
+more_options_keyboard = ReplyKeyboardMarkup(
+    keyboard = [
+        [KeyboardButton(text="🔔 Add alert")],
+        [KeyboardButton(text="🗑️ Delete alert")],
+        [KeyboardButton(text="📋 My alerts")],
+        [KeyboardButton(text="🔙 Back to main menu")]
+    ],
+    resize_keyboard=True
 )

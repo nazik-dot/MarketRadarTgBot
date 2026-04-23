@@ -1,39 +1,64 @@
 import aiohttp
-import os
-
-API_KEY = os.getenv("ALPHA_VANTAGE_KEY")
+from config import ALPHA_VANTAGE_KEY
 
 async def get_stock_price(symbol: str):
+    if not ALPHA_VANTAGE_KEY:
+        return None
+        
     try:
         url = (
             "https://www.alphavantage.co/query"
-            f"?function=GLOBAL_QUOTE&symbol={symbol}&apikey={API_KEY}"
+            f"?function=GLOBAL_QUOTE&symbol={symbol}&apikey={ALPHA_VANTAGE_KEY}"
         )
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=10) as resp:
                 data = await resp.json()
 
-        return data.get("Global Quote", {}).get("05. price")
+        # Handle various rate limit messages or errors
+        if "Note" in data:
+            return "Limit reached"
+        if "Information" in data:
+            return "Limit reached"
+        if "Error Message" in data:
+            return "Error (Check ticker)"
+
+        quote = data.get("Global Quote", {})
+        if not quote:
+            return None
+            
+        price = quote.get("05. price")
+        if price:
+            # Format price to be cleaner (2 decimals)
+            try:
+                return f"{float(price):.2f}"
+            except:
+                return price
+        return None
 
     except Exception as e:
         print(f"[stock_service] price error: {e}")
         return None
 
-
 async def find_stock(query: str):
+    if not ALPHA_VANTAGE_KEY:
+        return []
+        
     try:
         url = (
             "https://www.alphavantage.co/query"
-            f"?function=SYMBOL_SEARCH&keywords={query}&apikey={API_KEY}"
+            f"?function=SYMBOL_SEARCH&keywords={query}&apikey={ALPHA_VANTAGE_KEY}"
         )
 
         async with aiohttp.ClientSession() as session:
             async with session.get(url, timeout=10) as resp:
                 data = await resp.json()
 
-        matches = data.get("bestMatches", []) or []
+        if "Note" in data or "Information" in data:
+            return "Limit"
 
+        matches = data.get("bestMatches", []) or []
+        
         return [
             {
                 "symbol": m.get("1. symbol"),
@@ -46,20 +71,3 @@ async def find_stock(query: str):
     except Exception as e:
         print(f"[stock_service] error: {e}")
         return []
-    
-async def get_stock_price(symbol: str):
-    try:
-        url = (
-            "https://www.alphavantage.co/query"
-            f"?function=GLOBAL_QUOTE&symbol={symbol}&apikey={API_KEY}"
-        )
-
-        async with aiohttp.ClientSession() as session:
-            async with session.get(url, timeout=10) as resp:
-                data = await resp.json()
-
-        return data.get("Global Quote", {}).get("05. price")
-
-    except Exception as e:
-        print(f"[stock_service] price error: {e}")
-        return None
